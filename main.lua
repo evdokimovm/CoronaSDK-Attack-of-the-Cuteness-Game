@@ -17,6 +17,8 @@ local spawnEnemy
 local gameTitle
 local scoreTxt
 local score = 0
+local hitPlanet
+local planet
 
 -- preload audio
 
@@ -32,7 +34,7 @@ local function createPlayScreen()
 	background.y = 130
 	background.alpha = 0
 
-	local planet = display.newImage("planet.png")
+	planet = display.newImage("planet.png")
 	planet.x = centerX
 	planet.y = display.contentHeight + 60
 	planet.alpha = 0
@@ -55,9 +57,16 @@ end
 function spawnEnemy()
 
 	local enemy = display.newImage("beetleship.png")
-	enemy.x = math.random(20, display.contentWidth-20)
-	enemy.y = math.random(20, display.contentHeight-20)
 	enemy:addEventListener("tap", shipSmash)
+
+	if math.random(2) == 1 then
+		enemy.x = math.random(-100, -10)
+	else
+		enemy.x = math.random(display.contentWidth + 10, display.contentWidth + 100)
+	end
+	enemy.y = math.random(display.contentHeight)
+
+	enemy.trans = transition.to(enemy, {x=centerX, y=centerY, time=3500, onComplete=hitPlanet})
 
 end
 
@@ -82,17 +91,27 @@ end
 
 local function planetDamage()
 
+	local function goAway(obj)
+		planet.xScale = 1
+		planet.yScale = 1
+		-- planet.alpha = planet.numHits / 10
+	end
+	transition.to(planet, {time=200, xScale=1.2, yScale=1.2, alpha=1, onComplete=goAway})
 end
 
-local function hitPlanet(obj)
-
+function hitPlanet(obj)
+	display.remove(obj)
+	planetDamage()
+	audio.play(sndBlast)
+	spawnEnemy()
 end
 
 function shipSmash(event)
 
 	local obj = event.target
 	display.remove(obj)
-	audio.play(sndBlast)
+	audio.play(sndKill)
+	transition.cancel(event.target.trans)
 	score = score + 28
 	scoreTxt.text = "Score: " .. score
 	spawnEnemy()
