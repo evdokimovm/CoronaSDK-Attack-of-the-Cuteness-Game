@@ -13,6 +13,8 @@ local centerY = display.contentCenterY
 
 -- set up forward references
 
+local spawnEnemy
+
 -- preload audio
 
 -- create play screen
@@ -22,11 +24,13 @@ local function createPlayScreen()
 	local background = display.newImage("background.png")
 	background.y = 130
 	background.alpha = 0
+	background:addEventListener("tap", shipSmash)
 
 	local planet = display.newImage("planet.png")
 	planet.x = centerX
 	planet.y = display.contentHeight + 60
 	planet.alpha = 0
+	planet:addEventListener("tap", shipSmash)
 
 	transition.to(background, {time=2000, alpha=1, y=centerY, x=centerX})
 
@@ -36,6 +40,7 @@ local function createPlayScreen()
 		gameTitle.alpha = 0
 		gameTitle:scale(4, 4)
 		transition.to(gameTitle, {time=500, alpha=1, xScale = 1, yScale = 1})
+		spawnEnemy()
 
 	end
 	transition.to(planet, {time=2000, alpha = 1, y=centerY, onComplete = showTitle})
@@ -43,7 +48,12 @@ end
 
 -- game functions
 
-local function spawnEnemy()
+function spawnEnemy()
+
+	local enemy = display.newImage("beetleship.png")
+	enemy.x = math.random(20, display.contentWidth-20)
+	enemy.y = math.random(20, display.contentHeight-20)
+	enemy:addEventListener("tap", shipSmash)
 
 end
 
@@ -59,7 +69,11 @@ local function hitPlanet(obj)
 
 end
 
-local function shipSmash(event)
+function shipSmash(event)
+
+	local obj = event.target
+	display.remove(obj)
+	return true
 
 end
 
