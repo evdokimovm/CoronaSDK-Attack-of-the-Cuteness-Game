@@ -17,6 +17,14 @@ local centerY = display.contentCenterY
 
 -- create play screen
 
+local background = display.newImage("background.png")
+background.x = centerX
+background.y = centerY
+
+local planet = display.newImage("planet.png")
+planet.x = centerX
+planet.y = centerY
+
 -- game functions
 
 local function spawnEnemy()
