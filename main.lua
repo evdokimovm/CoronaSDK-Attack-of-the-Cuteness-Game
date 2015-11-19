@@ -17,6 +17,10 @@ local spawnEnemy
 
 -- preload audio
 
+local sndKill = audio.loadSound("boing-1.wav")
+local sndBlast = audio.loadSound("blast.mp3")
+local sndLose = audio.loadSound("wahwahwah.wav")
+
 -- create play screen
 
 local function createPlayScreen()
@@ -73,6 +77,7 @@ function shipSmash(event)
 
 	local obj = event.target
 	display.remove(obj)
+	audio.play(sndKill)
 	return true
 
 end
