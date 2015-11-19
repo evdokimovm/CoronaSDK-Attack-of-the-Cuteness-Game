@@ -19,12 +19,13 @@ local scoreTxt
 local score = 0
 local hitPlanet
 local planet
+local speedBump = 0
 
 -- preload audio
 
 local sndKill = audio.loadSound("boing-1.wav")
 local sndBlast = audio.loadSound("blast.mp3")
-local sndLose = audio.loadSound("wahwahwah.wav")
+local sndLose = audio.loadSound("wahwahwah.mp3")
 
 -- create play screen
 
@@ -50,23 +51,29 @@ local function createPlayScreen()
 		startGame()
 	end
 	transition.to(planet, {time=2000, alpha = 1, y=centerY, onComplete = showTitle})
+
+	scoreTxt = display.newText( "Score: 0", 0, 0, "Helvetica", 22 )
+	scoreTxt.x = centerX
+	scoreTxt.y = 10
+	scoreTxt.alpha = 0
 end
 
 -- game functions
 
 function spawnEnemy()
-
-	local enemy = display.newImage("beetleship.png")
+	local enemypics = {"beetleship.png","octopus.png", "rocketship.png"}
+	local enemy = display.newImage(enemypics[math.random (#enemypics)])
 	enemy:addEventListener("tap", shipSmash)
 
 	if math.random(2) == 1 then
 		enemy.x = math.random(-100, -10)
 	else
 		enemy.x = math.random(display.contentWidth + 10, display.contentWidth + 100)
+		enemy.xScale = -1
 	end
 	enemy.y = math.random(display.contentHeight)
-
-	enemy.trans = transition.to(enemy, {x=centerX, y=centerY, time=3500, onComplete=hitPlanet})
+	enemy.trans = transition.to ( enemy, { x=centerX, y=centerY, time=math.random(2500-speedBump, 4500-speedBump), onComplete=hitPlanet } )
+	speedBump = speedBump + 50
 
 end
 
@@ -81,29 +88,40 @@ function startGame()
 		text = nil
 		display.remove(gameTitle)
 		spawnEnemy()
-		scoreTxt = display.newText("Score: 0", 0, 0, "Helvetica", 22)
-		scoreTxt.x = centerX
-		scoreTxt.y = 10
+		scoreTxt.alpha = 1
+		scoreTxt.text = "Score: 0"
 		score = 0
+		planet.numHits = 10
+		planet.alpha = 1
+		speedBump = 0
 	end
 	text:addEventListener("tap", goAway)
 end
 
 local function planetDamage()
-
-	local function goAway(obj)
-		planet.xScale = 1
-		planet.yScale = 1
-		-- planet.alpha = planet.numHits / 10
+	planet.numHits = planet.numHits - 2
+	planet.alpha = planet.numHits / 10
+	if planet.numHits < 2 then
+		planet.alpha = 0
+		timer.performWithDelay(1000, startGame)
+		audio.play(sndLose)
+	else
+		local function goAway(obj)
+			planet.xScale = 1
+			planet.yScale = 1
+			planet.alpha = planet.numHits / 10
+		end
+		transition.to(planet, {time=200, xScale=1.2, yScale=1.2, alpha=1, onComplete=goAway})
 	end
-	transition.to(planet, {time=200, xScale=1.2, yScale=1.2, alpha=1, onComplete=goAway})
 end
 
 function hitPlanet(obj)
 	display.remove(obj)
 	planetDamage()
 	audio.play(sndBlast)
-	spawnEnemy()
+	if planet.numHits > 1 then
+		spawnEnemy()
+	end
 end
 
 function shipSmash(event)
