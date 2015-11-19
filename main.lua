@@ -17,12 +17,29 @@ local centerY = display.contentCenterY
 
 -- create play screen
 
-local background = display.newImage("background.png")
-background.y = 130
+local function createPlayScreen()
 
-local planet = display.newImage("planet.png")
-planet.x = centerX
-planet.y = display.contentHeight + 60
+	local background = display.newImage("background.png")
+	background.y = 130
+	background.alpha = 0
+
+	local planet = display.newImage("planet.png")
+	planet.x = centerX
+	planet.y = display.contentHeight + 60
+	planet.alpha = 0
+
+	transition.to(background, {time=2000, alpha=1, y=centerY, x=centerX})
+
+	local function showTitle()
+
+		local gameTitle = display.newImage("gametitle.png")
+		gameTitle.alpha = 0
+		gameTitle:scale(4, 4)
+		transition.to(gameTitle, {time=500, alpha=1, xScale = 1, yScale = 1})
+
+	end
+	transition.to(planet, {time=2000, alpha = 1, y=centerY, onComplete = showTitle})
+end
 
 -- game functions
 
@@ -31,8 +48,7 @@ local function spawnEnemy()
 end
 
 local function startGame()
-	transition.to(background, {time=2000, y=centerY, x=centerX})
-	transition.to(planet, {time=2000, y=centerY})
+
 end
 
 local function planetDamage()
@@ -47,4 +63,5 @@ local function shipSmash(event)
 
 end
 
+createPlayScreen()
 startGame()
