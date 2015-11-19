@@ -18,12 +18,11 @@ local centerY = display.contentCenterY
 -- create play screen
 
 local background = display.newImage("background.png")
-background.x = centerX
-background.y = centerY
+background.y = 130
 
 local planet = display.newImage("planet.png")
 planet.x = centerX
-planet.y = centerY
+planet.y = display.contentHeight + 60
 
 -- game functions
 
@@ -32,7 +31,8 @@ local function spawnEnemy()
 end
 
 local function startGame()
-
+	transition.to(background, {time=2000, y=centerY, x=centerX})
+	transition.to(planet, {time=2000, y=centerY})
 end
 
 local function planetDamage()
